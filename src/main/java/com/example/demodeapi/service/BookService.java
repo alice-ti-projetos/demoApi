@@ -1,57 +1,56 @@
 package com.example.demodeapi.service;
 
 import com.example.demodeapi.entity.Book;
-import org.springframework.boot.SpringApplication;
+import com.example.demodeapi.repository.BookRepository;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
+@Service
 public class BookService {
-    private final Scanner scanner = new Scanner(System.in);
-    private final List<Book> books = new ArrayList<>();
 
-    public static void main(String[] args) {
-        SpringApplication.run(BookService.class, args);
-    }
+    private final BookRepository bookRepository;
 
-    public Object createBook(Book book) {
+   public BookService(BookRepository bookRepository) {
+
+       this.bookRepository = bookRepository;
+   }
+
+    public Book createBook(Book book) {
         if (book == null) {
-            book = new Book(
-                    scanner.nextInt(),
-                    scanner.nextLine(),
-                    scanner.nextLine(),
-                    scanner.nextInt(),
-                    scanner.nextBoolean()
-            );
-            return book;
+            book = new Book();
+            return bookRepository.save(book);
         }
-        if (book.title.isEmpty()) {
+        if (book.getTitle().isEmpty()) {
             System.out.print("Title is empty");
             return null;
 
         }
-        if (book.author.isEmpty()) {
+        if (book.getAuthor().isEmpty()) {
             System.out.print("Author is empty");
             return null;
         }
-        BookService bookService = new BookService();
-        return bookService.createBook(book);
+       return bookRepository.save(book);
+
     }
 
-    public List<Book> listBooks(Book book) {
-        if (book == null) {
-            createBook(book);
-            books.add(book);
-            return books;
-        }
-        return books;
+    public List<Book> getAllBooks() {
+       return bookRepository.findAll();
     }
 
-    public Book listOneBook(Book book,int id) {
-        if (book.id == id){
-            return books.get(id);
+    public Book listOneBook(int id) {
+       Book book = bookRepository.getReferenceById(id);
+        if (book.getId() == id){
+            return bookRepository.getReferenceById(book.getId());
         }
         return null;
+    }
+
+    public Book updateBook(Book book){
+       return bookRepository.save(book);
+    }
+
+    public void deleteBook(Book book){
+        bookRepository.delete(book);
     }
 }
